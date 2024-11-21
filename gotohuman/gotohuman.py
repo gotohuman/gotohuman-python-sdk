@@ -1,6 +1,6 @@
 import requests
 import time
-from typing import Optional
+from typing import Optional, List
 import os
 from ._version import __version__
 
@@ -11,6 +11,8 @@ class Review:
         self.base_url = base_url
         self.fields = {}
         self.meta = {}
+        self.assign_to = []
+        self.assign_to_groups = []
 
     def add_field_data(self, field_name: str, value=None):
         if value is not None:
@@ -36,6 +38,16 @@ class Review:
             self.meta.update(fields)
         return self
 
+    def assign_to_users(self, user_emails: List[str]):
+        if user_emails is not None:
+            self.assign_to = user_emails
+        return self
+
+    def assign_to_user_groups(self, group_ids: List[str]):
+        if group_ids is not None:
+            self.assign_to_groups = group_ids
+        return self
+
     def send_request(self):
         version = __version__
         headers = {
@@ -46,6 +58,8 @@ class Review:
             'formId': self.form_id,
             'fields': self.fields,
             'meta': self.meta,
+            **({'assignTo': self.assign_to} if self.assign_to else {}),
+            **({'assignToGroups': self.assign_to_groups} if self.assign_to_groups else {}),
             'millis': int(time.time() * 1000),
             'origin': "py-sdk",
             'originV': version,
