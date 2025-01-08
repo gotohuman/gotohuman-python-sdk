@@ -11,7 +11,7 @@ with open(init_path) as f:
 
 setup(
     name='gotohuman',
-    packages=find_packages(),
+    packages=find_packages(exclude=['img']),
     version=version,
     description='Python SDK for gotoHuman',
     long_description=long_description_mkd,
@@ -28,5 +28,5 @@ setup(
       'requests'
     ],
     python_requires=">=3.8",
-    license="GPL-3.0"
+    license="MIT"
 )
