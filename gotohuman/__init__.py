@@ -1,0 +1,1 @@
+from .gotohuman import GotoHuman  # noqa

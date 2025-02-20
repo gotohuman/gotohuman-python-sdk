@@ -23,7 +23,7 @@ setup(
         "Twitter": "https://twitter.com/gotohuman",
     },
     author='gotoHuman',
-    author_email='founders@gotohuman.com',
+    author_email='hello@gotohuman.com',
     install_requires=[
       'requests'
     ],

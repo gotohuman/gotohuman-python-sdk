@@ -6,39 +6,45 @@
 
 # gotoHuman - Human in the Loop for AI workflows
 
-[gotoHuman](https://gotohuman.com) helps you build production-ready AI workflows by making it really easy to include human approvals. Keep a human in the loop to review AI‑generated content, approve critical actions or provide input.
+[![MIT License](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![PyPI Version](https://img.shields.io/pypi/v/gotohuman.svg?style=flat-square&label=pypi+gotohuman)](https://pypi.python.org/pypi/gotohuman)
+[![GitHub Repo stars](https://img.shields.io/github/stars/gotohuman?style=flat-square&logo=GitHub&label=gotohuman)](https://github.com/langfuse/langfuse)
+[![Discord](https://img.shields.io/discord/1301983673616171090?style=flat-square&logo=Discord&logoColor=white&label=Discord&color=%23434EE4)](https://discord.gg/yDSQtf2SSg)
 
-Set up a fully customized review step capturing any relevant data (text, images, markdown,...) and required human input (buttons, checkboxes, inputs,...). Then trigger it from your application whenever human review from your team is needed.
+[gotoHuman](https://gotohuman.com) is a web app where you can approve actions of your AI agents. Keep a human in the loop to review AI‑generated content, approve critical actions or provide input.
 
 ### Install
 
-`pip install gotohuman`
+```bash
+pip install gotohuman
+```
 
 ### Init
 
-Setup an environment variable with your API key:
+Create a review form in [gotoHuman](https://app.gotohuman.com) adding fields to capture the content to review and the input and feedback you want to collect.
+
+Setup an environment variable with your API key.
 ```
 GOTOHUMAN_API_KEY=YOUR_API_KEY
 ```
-If you're using a .env file, don't forget to load it:
-```
-from dotenv import load_dotenv
-load_dotenv()
-```
+
 Initialize the SDK:
-```
+```python
+from gotohuman import GotoHuman
+
 gotoHuman = GotoHuman()
 ```
 
 ### Send request
 
+Request a new review and include the data for your form's content fields.  
 [Read the docs](https://docs.gotohuman.com/send-requests) for more details.
 
 Example request:
-```
+```python
 review = gotoHuman.create_review("YOUR_FORM_ID")
-review.add_field_data("exampleField1", value1)
-review.add_field_data("exampleField2", value2)
+review.add_field_data("ai_social_media_post", ai_text_draft)
+review.add_field_data("ai_image", ai_image_url)
 review.add_meta_data("threadId", threadId)
 review.assign_to_users(["jess@acme.org"])
 try:
