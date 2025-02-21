@@ -1,6 +1,6 @@
-import requests
+import httpx
 import time
-from typing import Optional, List
+from typing import Any, Dict, Optional, List
 import os
 from ._version import __version__
 
@@ -48,31 +48,48 @@ class Review:
             self.assign_to_groups = group_ids
         return self
 
-    def send_request(self):
-        version = __version__
-        headers = {
+    def send_request(self) -> Dict[str, Any]:
+      try:
+          response = httpx.post(f"{self.base_url}/requestReview", headers=self.get_headers(), json=self.get_body())
+          response.raise_for_status()
+          return response.json()
+      except httpx.RequestError as exc:
+          raise Exception(f"A network error occurred while requesting {exc.request.url!r}.")
+      except httpx.HTTPStatusError as exc:
+          raise Exception(f"Error response {exc.response.status_code}:{exc} while requesting {exc.request.url!r}.")
+      except httpx.TimeoutException as exc:
+          raise Exception(f"Timeout Error: {exc}")
+
+    async def async_send_request(self) -> Dict[str, Any]:
+      try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f"{self.base_url}/requestReview", headers=self.get_headers(), json=self.get_body())
+            response.raise_for_status()
+            return response.json()
+      except httpx.RequestError as exc:
+          raise Exception(f"A network error occurred while requesting {exc.request.url!r}: {exc}")
+      except httpx.HTTPStatusError as exc:
+          raise Exception(f"Error response {exc.response.status_code}:{exc} while requesting {exc.request.url!r}.")
+      except httpx.TimeoutException as exc:
+          raise Exception(f"Timeout Error: {exc}")
+
+    def get_headers(self) -> Dict[str, str]:
+        return {
             'Content-Type': 'application/json',
             'x-api-key': self.api_key,
         }
-        body = {
-            'formId': self.form_id,
-            'fields': self.fields,
-            'meta': self.meta,
-            **({'assignTo': self.assign_to} if self.assign_to else {}),
-            **({'assignToGroups': self.assign_to_groups} if self.assign_to_groups else {}),
-            'millis': int(time.time() * 1000),
-            'origin': "py-sdk",
-            'originV': version,
-        }
-        try:
-          response = requests.post(f"{self.base_url}/requestReview", headers=headers, json=body)
-          if not response.ok:
-              raise Exception(f"gotoHuman API request failed with status code {response.status_code}: {response.text}")
-        except requests.exceptions.RequestException as err:
-            raise Exception(f"gotoHuman API request failed: {str(err)}")
 
-        return response.json()
-
+    def get_body(self) -> Dict[str, Any]:
+      return {
+          'formId': self.form_id,
+          'fields': self.fields,
+          'meta': self.meta,
+          **({'assignTo': self.assign_to} if self.assign_to else {}),
+          **({'assignToGroups': self.assign_to_groups} if self.assign_to_groups else {}),
+          'millis': int(time.time() * 1000),
+          'origin': "py-sdk",
+          'originV': __version__,
+      }
 
 class GotoHuman:
     def __init__(self, api_key: Optional[str] = None):
@@ -81,7 +98,7 @@ class GotoHuman:
             raise ValueError('Please pass an API key or set it in the environment variable GOTOHUMAN_API_KEY')
         self.base_url = os.getenv('GOTOHUMAN_BASE_URL', 'https://api.gotohuman.com')
 
-    def create_review(self, form_id: str):
+    def create_review(self, form_id: str) -> Review:
         if not form_id:
             raise ValueError('Please pass a form ID')
         return Review(form_id, self.api_key, self.base_url)
