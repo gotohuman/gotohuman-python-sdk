@@ -54,6 +54,11 @@ except Exception as e:
     print("An error occurred:", e)
 ```
 
+Or asynchronously:
+```python
+response = await review.async_send_request()
+```
+
 #### Example review
 
 ![gotoHuman - Human approval example](./img/repo-review-example.jpg)
