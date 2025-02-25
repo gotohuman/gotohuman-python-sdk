@@ -50,7 +50,12 @@ class Review:
 
     def send_request(self) -> Dict[str, Any]:
       try:
-          response = httpx.post(f"{self.base_url}/requestReview", headers=self.get_headers(), json=self.get_body())
+          response = httpx.post(
+              url=f"{self.base_url}/requestReview",
+              headers=self.get_headers(),
+              json=self.get_body(),
+              timeout=20.0
+          )
           response.raise_for_status()
           return response.json()
       except httpx.RequestError as exc:
@@ -62,7 +67,7 @@ class Review:
 
     async def async_send_request(self) -> Dict[str, Any]:
       try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=20.0) as client:
             response = await client.post(f"{self.base_url}/requestReview", headers=self.get_headers(), json=self.get_body())
             response.raise_for_status()
             return response.json()
