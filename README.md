@@ -21,7 +21,7 @@ pip install gotohuman
 
 ### Init
 
-Create a review form in [gotoHuman](https://app.gotohuman.com) adding fields to capture the content to review and the input and feedback you want to collect.
+Create a review template in [gotoHuman](https://app.gotohuman.com) adding fields to capture the content to review and the input and feedback you want to collect.
 
 Setup an environment variable with your API key.
 ```
@@ -37,14 +37,16 @@ gotoHuman = GotoHuman()
 
 ### Send request
 
-Request a new review and include the data for your form's content fields.  
+Request a new review and include the data for your review template's fields.  
 [Read the docs](https://docs.gotohuman.com/send-requests) for more details.
 
 Example request:
 ```python
-review = gotoHuman.create_review("YOUR_FORM_ID")
-review.add_field_data("ai_social_media_post", ai_text_draft)
-review.add_field_data("ai_image", ai_image_url)
+review = gotoHuman.create_review("YOUR_REVIEW_TEMPLATE_ID")
+review.set_review_data({
+    "ai_social_media_post": ai_text_draft,
+    "ai_image": ai_image_url,
+})
 review.add_meta_data("threadId", threadId)
 review.assign_to_users(["jess@acme.org"])
 try:
@@ -54,7 +56,12 @@ except Exception as e:
     print("An error occurred:", e)
 ```
 
-Or asynchronously:
+Optionally pass a config object to control review behavior:
+```python
+review.set_review_config({"someOption": True})
+```
+
+Or send asynchronously:
 ```python
 response = await review.async_send_request()
 ```
