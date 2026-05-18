@@ -10,13 +10,22 @@ class Review:
         self.api_key = api_key
         self.base_url = base_url
         self.fields = {}
+        self.review_data = None
+        self.review_config = None
         self.meta = {}
         self.assign_to = []
         self.assign_to_groups = []
         self.review_id_to_update = None
+        self.webhook_url = None
+        self.title = None
+        self.auto_approve = None
+        self.workflow = None
 
     def add_field_data(self, field_name: str, value=None):
         """
+        .. deprecated::
+            Use :meth:`set_review_data` instead.
+
         Add a field value for the review.
         
         Args:
@@ -31,6 +40,9 @@ class Review:
 
     def set_fields_data(self, fields=None):
         """
+        .. deprecated::
+            Use :meth:`set_review_data` instead.
+
         Set multiple field values for the review at once.
         
         Args:
@@ -44,12 +56,95 @@ class Review:
 
     def clear_field_data(self):
         """
+        .. deprecated::
+            Use :meth:`set_review_data` instead.
+
         Clear all field data from the review.
         
         Returns:
             Review: The current Review instance (for chaining).
         """
         self.fields = {}
+        return self
+
+    def set_review_data(self, data: Dict[str, Any]):
+        """
+        Set the review data.
+        Sent to the API as `fields`. Takes precedence over deprecated field-level methods.
+
+        Args:
+            data (dict): Review data object as set up in gotoHuman.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if data is not None:
+            self.review_data = data
+        return self
+
+    def set_review_config(self, config: Dict[str, Any]):
+        """
+        Set review configuration options.
+        Sent to the API as `config`.
+
+        Args:
+            config (dict): Optional review config object.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if config is not None:
+            self.review_config = config
+        return self
+
+    def set_webhook_url(self, url: str):
+        """
+        Set a dynamic webhook URL to be called when the review is completed.
+
+        Args:
+            url (str): The webhook URL.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if url is not None:
+            self.webhook_url = url
+        return self
+
+    def set_title(self, title: str):
+        """
+        Set a title for the review.
+
+        Args:
+            title (str): The review title.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if title is not None:
+            self.title = title
+        return self
+
+    def set_auto_approve(self, auto_approve: bool):
+        """
+        Set whether the review should be auto-approved.
+
+        Args:
+            auto_approve (bool): Whether to auto-approve the review.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if auto_approve is not None:
+            self.auto_approve = auto_approve
+        return self
+
+    def set_workflow(self, workflow: Dict[str, Any]):
+        """
+        Set workflow configuration for the review.
+
+        Args:
+            workflow (dict): Optional workflow configuration object.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if workflow is not None:
+            self.workflow = workflow
         return self
 
     def add_meta_data(self, attribute: str, value=None):
@@ -173,11 +268,16 @@ class Review:
     def get_body(self) -> Dict[str, Any]:
       return {
           'formId': self.form_id,
-          'fields': self.fields,
+          'fields': self.review_data if self.review_data is not None else self.fields,
+          **({'config': self.review_config} if self.review_config is not None else {}),
           'meta': self.meta,
           **({'assignTo': self.assign_to} if self.assign_to else {}),
           **({'assignToGroups': self.assign_to_groups} if self.assign_to_groups else {}),
           **({'updateForReviewId': self.review_id_to_update} if self.review_id_to_update is not None else {}),
+          **({'webhookUrl': self.webhook_url} if self.webhook_url is not None else {}),
+          **({'title': self.title} if self.title is not None else {}),
+          **({'autoApprove': self.auto_approve} if self.auto_approve is not None else {}),
+          **({'workflow': self.workflow} if self.workflow is not None else {}),
           'millis': int(time.time() * 1000),
           'origin': "py-sdk",
           'originV': __version__,
@@ -200,15 +300,15 @@ class GotoHuman:
 
     def create_review(self, form_id: str) -> Review:
         """
-        Create a new Review instance for the specified form ID / review template ID.
+        Create a new Review instance for the specified review template ID.
         
         Args:
-            form_id (str): The ID of the form / review template to use for the review.
+            form_id (str): The ID of the review template to use for the review.
         Returns:
             Review: A new Review instance.
         Raises:
-            ValueError: If no form ID is provided.
+            ValueError: If no review template ID is provided.
         """
         if not form_id:
-            raise ValueError('Please pass a form ID')
+            raise ValueError('Please pass a review template ID')
         return Review(form_id, self.api_key, self.base_url)

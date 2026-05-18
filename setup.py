@@ -16,7 +16,7 @@ setup(
     description='Python SDK for gotoHuman',
     long_description=long_description_mkd,
     long_description_content_type="text/markdown",
-    keywords="gotohuman ai agents llm automation human-in-the-loop",
+    keywords="gotohuman ai agents llm automation human-in-the-loop human reviews",
     url="https://gotohuman.com",
     project_urls={
         "Documentation": "https://docs.gotohuman.com/",
