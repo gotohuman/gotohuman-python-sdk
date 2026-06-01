@@ -23,9 +23,10 @@ pip install gotohuman
 
 Create a review template in [gotoHuman](https://app.gotohuman.com) adding fields to capture the content to review and the input and feedback you want to collect.
 
-Setup an environment variable with your API key.
+Setup environment variables with your API key and an agent ID.
 ```
 GOTOHUMAN_API_KEY=YOUR_API_KEY
+GOTOHUMAN_AGENT_ID=YOUR_AGENT_ID
 ```
 
 Initialize the SDK:
@@ -33,6 +34,7 @@ Initialize the SDK:
 from gotohuman import GotoHuman
 
 gotoHuman = GotoHuman()
+# or: GotoHuman(api_key="...", agent_id="...")
 ```
 
 ### Send request

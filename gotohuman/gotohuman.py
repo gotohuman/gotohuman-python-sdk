@@ -5,10 +5,11 @@ import os
 from ._version import __version__
 
 class Review:
-    def __init__(self, form_id: str, api_key: str, base_url: str):
+    def __init__(self, form_id: str, api_key: str, base_url: str, agent_id: Optional[str] = None):
         self.form_id = form_id
         self.api_key = api_key
         self.base_url = base_url
+        self.agent_id = agent_id
         self.fields = {}
         self.review_data = None
         self.review_config = None
@@ -268,6 +269,7 @@ class Review:
     def get_body(self) -> Dict[str, Any]:
       return {
           'formId': self.form_id,
+          **({'agentId': self.agent_id} if self.agent_id is not None else {}),
           'fields': self.review_data if self.review_data is not None else self.fields,
           **({'config': self.review_config} if self.review_config is not None else {}),
           'meta': self.meta,
@@ -284,18 +286,20 @@ class Review:
       }
 
 class GotoHuman:
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, agent_id: Optional[str] = None):
         """
         Initialize a GotoHuman instance.
         
         Args:
             api_key (str, optional): The API key for authentication. If not provided, will use the GOTOHUMAN_API_KEY environment variable.
+            agent_id (str, optional): The agent ID for review requests. If not provided, will use the GOTOHUMAN_AGENT_ID environment variable.
         Raises:
             ValueError: If no API key is provided or found in the environment.
         """
         self.api_key = api_key or os.getenv('GOTOHUMAN_API_KEY')
         if not self.api_key:
             raise ValueError('Please pass an API key or set it in the environment variable GOTOHUMAN_API_KEY')
+        self.agent_id = agent_id or os.getenv('GOTOHUMAN_AGENT_ID')
         self.base_url = os.getenv('GOTOHUMAN_BASE_URL', 'https://api.gotohuman.com')
 
     def create_review(self, form_id: str) -> Review:
@@ -311,4 +315,4 @@ class GotoHuman:
         """
         if not form_id:
             raise ValueError('Please pass a review template ID')
-        return Review(form_id, self.api_key, self.base_url)
+        return Review(form_id, self.api_key, self.base_url, self.agent_id)
