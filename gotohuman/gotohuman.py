@@ -21,6 +21,7 @@ class Review:
         self.title = None
         self.auto_approve = None
         self.workflow = None
+        self.session_id = None
 
     def add_field_data(self, field_name: str, value=None):
         """
@@ -137,6 +138,9 @@ class Review:
 
     def set_workflow(self, workflow: Dict[str, Any]):
         """
+        .. deprecated::
+            Use :meth:`set_session_id` instead.
+
         Set workflow configuration for the review.
 
         Args:
@@ -146,6 +150,19 @@ class Review:
         """
         if workflow is not None:
             self.workflow = workflow
+        return self
+
+    def set_session_id(self, session_id: str):
+        """
+        Associate the review with an existing session (workflow run).
+
+        Args:
+            session_id (str): The session ID to link this review to.
+        Returns:
+            Review: The current Review instance (for chaining).
+        """
+        if session_id is not None:
+            self.session_id = session_id
         return self
 
     def add_meta_data(self, attribute: str, value=None):
@@ -280,6 +297,7 @@ class Review:
           **({'title': self.title} if self.title is not None else {}),
           **({'autoApprove': self.auto_approve} if self.auto_approve is not None else {}),
           **({'workflow': self.workflow} if self.workflow is not None else {}),
+          **({'sessionId': self.session_id} if self.session_id is not None else {}),
           'millis': int(time.time() * 1000),
           'origin': "py-sdk",
           'originV': __version__,
